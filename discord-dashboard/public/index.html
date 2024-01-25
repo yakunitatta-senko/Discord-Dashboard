@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Meta stuff -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord-Like Chat</title>
+
+  <!-- Styles, ya know -->
+  <link rel="stylesheet" href="path/to/your/styles.css">
+  <style>
+    /* Custom Discord-esque styles */
+    body {
+      font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #36393f;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Chat container style */
+    #chatContainer {
+      max-height: 500px;
+      overflow-y: auto;
+      background-color: #36393f;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 0;
+      margin: 10px;
+      /* Added margin for spacing */
+      padding: 10px;
+    }
+
+    /* Message style */
+    .message {
+      display: flex;
+      padding: 10px;
+      margin: 10px;
+      /* Added margin for spacing */
+      transition: background-color 0.3s;
+      background-color: #40444b;
+      border-radius: 8px;
+    }
+
+    /* Hover effect for messages */
+    .message:hover {
+      background-color: #40444b;
+    }
+
+    /* Avatar style for bot messages */
+    .bot-avatar img {
+      margin-right: 10px;
+      /* Added margin for spacing */
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    /* Message content style */
+    .content {
+      display: flex;
+      flex-direction: column;
+      word-wrap: break-word;
+      text-align: left;
+    }
+
+    /* Username style */
+    .content strong {
+      line-height: 1.375rem;
+      min-height: 1.375rem;
+      color: var(--text-muted);
+      white-space: break-spaces;
+    }
+
+    /* Style for image content */
+    .content img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    /* Input field style */
+    #messageInput {
+      position: fixed;
+      bottom: 0;
+      width: calc(100% - 20px);
+      margin: 10px;
+      padding: 15px;
+      /* Adjusted padding */
+      border: 1px solid #40444b;
+      border-radius: 5px;
+      box-sizing: border-box;
+      color: #ffffff;
+      background-color: #2f3136;
+    }
+
+    /* Focus style for input field */
+    #messageInput:focus {
+      outline: none;
+      border-color: #7289da;
+    }
+
+    /* Placeholder color for input field */
+    #messageInput::placeholder {
+      color: #72767d;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Your existing content here -->
+
+  <!-- Add a container for messages -->
+  <div id="chatContainer">
+    <!-- Message elements will be dynamically added here -->
+  </div>
+
+  <!-- Add input field for sending messages -->
+  <input type="text" id="messageInput" placeholder="Type your message and press Enter...">
+
+  <!-- Include Socket.IO script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+
+  <!-- Your existing scripts or other body content here -->
+
+  <script>
+    // JavaScript magic for the chat
+    document.addEventListener('DOMContentLoaded', () => {
+      const socket = io();
+
+      // Function to check if a string is a valid image URL
+      function isImageUrl(url) {
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        const lowerCaseUrl = url.toLowerCase();
+
+        // Check if it's a regular image
+        const isImage = imageExtensions.some(ext => lowerCaseUrl.endsWith(ext));
+
+        // Check if it's a Tenor GIF
+        const isTenorGif = lowerCaseUrl.includes('tenor.com/view/');
+
+        if (isImage) {
+          const format = imageExtensions.find(ext => lowerCaseUrl.endsWith(ext));
+          return { isImage: true, isTenorGif: false, format: format };
+        } else if (isTenorGif) {
+          return { isImage: true, isTenorGif: true, format: 'gif' };
+        } else {
+          return { isImage: false, isTenorGif: false, format: null };
+        }
+      }
+      // Handling new messages
+      socket.on('newMessage', (messageData) => {
+        const isImageResult = isImageUrl(messageData.content);
+
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message bot';
+
+        messageElement.innerHTML = `
+    <div class="bot-avatar">
+      <img src="${messageData.avatarURL}" alt="${messageData.username}" />
+    </div>
+    <div class="content">
+      <strong>${messageData.username}</strong>
+      ${isImageResult.isImage
+            ? isImageResult.isTenorGif
+              ? `<span>Embedded Tenor GIF: ${messageData.content}</span>`
+              : `<img class="image-content" src="${messageData.content}" alt="Image" /> (${isImageResult.format.toUpperCase()})`
+            : `<span>${messageData.content}</span>`
+          }
+    </div>
+  `;
+
+        const chatContainer = document.getElementById('chatContainer');
+        chatContainer.appendChild(messageElement);
+      });
+
+      // Add event listener for sending messages on Enter key press
+      const messageInput = document.getElementById('messageInput');
+
+      messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          sendMessage();
+        }
+      });
+
+      // Add event listener for sending messages on button click
+      function sendMessage() {
+        // Grabbing message content and setting up bot info
+        const messageContent = messageInput.value.trim();
+        const webhookUsername = 'unknown';
+        const webhookAvatarURL = 'https://img.freepik.com/premium-photo/minimal-japanese-kawaii-dog-boy-chibi-anime-vector-art-sticker-with-clean-bold-line-cute-simple_655090-47286.jpg';
+
+        if (messageContent !== '') {
+          // Emitting the message to the socket
+          socket.emit('sendMessage', {
+            username: 'Bot',
+            avatarURL: 'https://img.freepik.com/premium-photo/minimal-japanese-kawaii-dog-boy-chibi-anime-vector-art-sticker-with-clean-bold-line-cute-simple_655090-47286.jpg',
+            content: messageContent,
+          });
+
+          // Sending message to Discord webhook
+          sendToWebhook('https://discord.com/api/webhooks/1199989700144939038/XqoHu5sjo--tbW1NOPm0BqTU4l11-cQKsY1U-rVFEDjLc8_dNC0rjn333fYntnE-gE3P', messageContent, webhookUsername, webhookAvatarURL);
+
+          // Clearing the input field
+          messageInput.value = '';
+        }
+      }
+
+      // Function to send messages to Discord webhook
+      function sendToWebhook(webhookUrl, message, username, avatarURL) {
+        const requestOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: message,
+            username: username ,
+            avatar_url: avatarURL,
+          }),
+        };
+
+        // Using fetch to send the message
+        fetch(webhookUrl, requestOptions)
+          .then(response => response.json())
+          .then(data => console.log('Message sent to webhook:', data))
+          .catch(error => console.error('Error sending message to webhook:', error));
+      }
+    });
+  </script>
+
+</body>
+
+</html>
