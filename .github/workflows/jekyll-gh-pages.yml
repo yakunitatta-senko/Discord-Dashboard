@@ -25,7 +25,10 @@ jobs:
         with:
           artifact: _site
       - name: Run Discord Dashboard
-        run: node index.js
+        run: |
+          cd Discord-Dashboard/discord-dashboard
+          npm run start
+          run: node index.js
 
   deploy:
     runs-on: ubuntu-latest
