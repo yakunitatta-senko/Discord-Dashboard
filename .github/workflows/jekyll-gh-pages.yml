@@ -20,6 +20,15 @@ jobs:
         with:
           source: ./
           destination: ./_site
+      - name: Install Faraday Retry
+        run: npm install faraday-retry
+      - name: Build with Jekyll and Faraday Retry
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+          env:
+            FAILED_REQUESTS_RETRY: 1
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
