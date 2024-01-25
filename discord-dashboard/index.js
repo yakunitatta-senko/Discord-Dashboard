@@ -40,7 +40,7 @@ app.get('/', async (req, res) => {
   }
 });
 
-const BOT_TOKEN = "MTE5OTkwMTgyMzEyMTc2MDMyNw.GhL3hM.uKei31gh6Eg5SuhVJeDL2D7VPQwTI9VzwnfvrY";
+const BOT_TOKEN = "MTE5OTkwMTgyMzEyMTc2MDMyNw.G0S7R8.8_48Ja9pVjsQTHWEqlhNFexaXgmbNkDmxPs5ps";
 
 if (!BOT_TOKEN) {
   console.error('Bot token not provided. Make sure to set the BOT_TOKEN environment variable.');
