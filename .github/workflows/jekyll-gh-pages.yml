@@ -27,7 +27,6 @@ jobs:
       - name: Run Discord Dashboard
         run: |
           cd Discord-Dashboard/discord-dashboard
-          npm run start
           run: node index.js
 
   deploy:
