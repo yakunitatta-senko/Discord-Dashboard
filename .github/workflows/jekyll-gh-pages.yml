@@ -26,7 +26,7 @@ jobs:
           artifact: _site
       - name: Run Discord Dashboard
         run: |
-          cd Discord-Dashboard/discord-dashboard
+          cd discord-dashboard
           run: node index.js
 
   deploy:
