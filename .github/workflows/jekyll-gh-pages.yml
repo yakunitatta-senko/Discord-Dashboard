@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Dependencies
-        run: npm install
+        run: |
+           cd discord-dashboard
+           npm install
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Pages
