@@ -1,0 +1,6 @@
+# Set the theme for your site if you're using a Jekyll theme
+theme: jekyll-theme-primer
+
+# Exclude README.md files from being processed during the build
+exclude:
+  - README.md
