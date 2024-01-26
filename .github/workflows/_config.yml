@@ -1,0 +1,14 @@
+# Site configuration
+
+# Set the base URL for your site if it's hosted in a subdirectory
+# For example, if your site is hosted at example.com/blog, set the baseurl to /blog
+# If your site is hosted at the root domain, leave it empty
+baseurl: ""
+
+# Set the theme for your site if you're using a Jekyll theme
+theme: jekyll-theme-primer
+
+# Exclude README.md files from being processed during the build
+exclude:
+  - README.md
+  - "*.md"
